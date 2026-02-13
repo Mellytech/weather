@@ -1,0 +1,78 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, sans-serif;
+}
+
+body{
+    background:url(weather.avif);
+    background-size:cover;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+/* APP CARD */
+.weather-app{
+    background: rgba(0, 0, 0, 0.525);
+    padding:25px;
+    
+    border-radius:12px;
+    width:90%;
+    max-width:400px;
+    text-align:center;
+    box-shadow:0 10px 25px rgba(0,0,0,0.2);
+}
+
+/* SEARCH */
+.search-box{
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+}
+
+.search-box input{
+    flex:1;
+    padding:10px;
+    border:1px solid #ccc;
+    border-radius:6px;
+}
+
+.search-box button{
+    padding:10px 15px;
+    border:none;
+    background:#1f4037;
+    color:white;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+/* WEATHER INFO */
+.weather-info{
+    display:none;
+}
+
+.weather-info h2{
+    margin-bottom:10px;
+}
+
+.temp{
+    font-size:40px;
+    font-weight:bold;
+}
+
+.details{
+    display:flex;
+    justify-content:space-between;
+    margin-top:15px;
+    font-size:14px;
+}
+
+/* MOBILE */
+@media(max-width:480px){
+    .temp{
+        font-size:32px;
+    }
+}
