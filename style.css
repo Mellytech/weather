@@ -19,7 +19,7 @@ body{
 .weather-app{
     background: rgba(0, 0, 0, 0.525);
     padding:25px;
-    color:#fff;
+    color:white;
     border-radius:12px;
     width:90%;
     max-width:400px;
@@ -78,5 +78,6 @@ body{
     }
 
 }
+
 
 
