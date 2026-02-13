@@ -72,11 +72,19 @@ body{
 
 /* MOBILE */
 @media(max-width:480px){
+    .search-box button{
+        width:100%;
+    }
     .temp{
-        font-size:32px;
+        font-size:34px;
+    }
+    .details{
+        flex-direction:column;
+        gap:8px;
     }
 
 }
+
 
 
 
