@@ -73,10 +73,10 @@ body{
 /* MOBILE */
 @media(max-width:480px){
     .search-box button{
-        width:50%;
+        width:30%;
     }
     .temp{
-        font-size:34px;
+        font-size:24px;
     }
     .details{
         flex-direction:column;
@@ -84,6 +84,7 @@ body{
     }
 
 }
+
 
 
 
