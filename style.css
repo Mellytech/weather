@@ -73,7 +73,7 @@ body{
 /* MOBILE */
 @media(max-width:480px){
     .search-box button{
-        width:100%;
+        width:50%;
     }
     .temp{
         font-size:34px;
@@ -84,6 +84,7 @@ body{
     }
 
 }
+
 
 
 
