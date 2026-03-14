@@ -1,67 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MellyTech Weather App</title>
-<link rel="stylesheet" href="style.css">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Weather App</title>
+    <!-- Modern Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Premium Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<div class="weather-app">
-    <h1>MellyTech Weather App</h1>
+    <div class="weather-app">
+        <div class="app-content">
+            <div class="search-box">
+                <i class="ph ph-map-pin location-icon"></i>
+                <input type="text" id="cityInput" placeholder="Enter city name..." autocomplete="off">
+                <button onclick="getWeather()">
+                    <i class="ph ph-magnifying-glass"></i>
+                </button>
+            </div>
 
-    <div class="search-box">
-        <input type="text" id="cityInput" placeholder="Enter city name">
-        <button onclick="getWeather()">Search</button>
-    </div>
+            <div class="weather-info" id="weatherInfo">
+                <img src="" alt="Weather Icon" id="weatherIcon" class="weather-icon" style="display: none;">
+                <h2 id="cityName">--</h2>
+                <div class="temp" id="temperature">--°C</div>
+                <p id="description" class="weather-desc">Ready to check the weather</p>
 
-    <div class="weather-info" id="weatherInfo">
-        <h2 id="cityName"></h2>
-        <div class="temp" id="temperature"></div>
-        <p id="description"></p>
-
-        <div class="details">
-            <span id="humidity"></span>
-            <span id="wind"></span>
+                <div class="details">
+                    <div class="detail-item">
+                        <i class="ph ph-drop"></i>
+                        <div>
+                            <p>Humidity</p>
+                            <span id="humidity">--%</span>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <i class="ph ph-wind"></i>
+                        <div>
+                            <p>Wind speed</p>
+                            <span id="wind">-- km/h</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+
+        <nav class="bottom-nav">
+            <a href="index.html" class="active">
+                <i class="ph-fill ph-sun"></i>
+                <span>Today</span>
+            </a>
+            <a href="forecast.html">
+                <i class="ph ph-calendar-blank"></i>
+                <span>Forecast</span>
+            </a>
+            <a href="about.html">
+                <i class="ph ph-info"></i>
+                <span>About</span>
+            </a>
+        </nav>
     </div>
-</div>
 
-<script>
+    <script>
+        const cityInput = document.getElementById("cityInput");
 
-async function getWeather(){
+        cityInput.addEventListener("keypress", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                getWeather();
+            }
+        });
 
-    const city = document.getElementById("cityInput").value;
+        async function getWeather() {
+            const city = cityInput.value.trim();
+            if (!city) return;
 
-    const apiKey = "c813c9d12102635544f37dc9ee37a186";
+            const apiKey = "c813c9d12102635544f37dc9ee37a186";
+            const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`;
 
-    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`;
+            const weatherInfo = document.getElementById("weatherInfo");
+            const iconEl = document.getElementById("weatherIcon");
 
-    try{
-        const response = await fetch(url);
-        const data = await response.json();
+            try {
+                weatherInfo.classList.add("loading");
 
-        if(data.cod === "404"){
-            alert("City not found");
-            return;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.cod !== 200) {
+                    alert(data.message ? data.message : "City not found");
+                    weatherInfo.classList.remove("loading");
+                    return;
+                }
+
+                document.getElementById("cityName").innerText = data.name;
+                document.getElementById("temperature").innerText = Math.round(data.main.temp) + "°C";
+
+                const desc = data.weather[0].description;
+                document.getElementById("description").innerText = desc.charAt(0).toUpperCase() + desc.slice(1);
+
+                document.getElementById("humidity").innerText = data.main.humidity + "%";
+                document.getElementById("wind").innerText = data.wind.speed.toFixed(1) + " km/h";
+
+                const iconCode = data.weather[0].icon;
+                iconEl.src = `https://openweathermap.org/img/wn/${iconCode}@4x.png`;
+                iconEl.style.display = "block";
+
+                weatherInfo.classList.remove("loading");
+                weatherInfo.classList.add("active");
+
+                weatherInfo.style.animation = 'none';
+                weatherInfo.offsetHeight;
+                weatherInfo.style.animation = null;
+
+            } catch (error) {
+                alert("Error fetching weather data. Please try again.");
+                weatherInfo.classList.remove("loading");
+            }
         }
-
-        document.getElementById("cityName").innerText = data.name;
-        document.getElementById("temperature").innerText = data.main.temp + "°C";
-        document.getElementById("description").innerText = data.weather[0].description;
-        document.getElementById("humidity").innerText = "Humidity: " + data.main.humidity + "%";
-        document.getElementById("wind").innerText = "Wind: " + data.wind.speed + " km/h";
-
-        document.getElementById("weatherInfo").style.display = "block";
-
-    }catch(error){
-        alert("Error fetching weather");
-    }
-}
-
-</script>
-
+    </script>
 </body>
+
 </html>
