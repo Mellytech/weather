@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Weather App - Forecast</title>
+    <!-- Modern Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Premium Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="weather-app">
+        <div class="app-content">
+        <div class="search-box">
+            <i class="ph ph-map-pin location-icon"></i>
+            <input type="text" id="cityInput" placeholder="Enter city name..." autocomplete="off">
+            <button onclick="getForecast()">
+                <i class="ph ph-magnifying-glass"></i>
+            </button>
+        </div>
+
+        <div id="recentSearches" class="recent-searches" style="display: none;">
+            <div class="recent-title">
+                <span>Recent Searches</span>
+                <span class="clear-history" onclick="clearHistory()">Clear</span>
+            </div>
+            <div id="recentList" class="recent-list"></div>
+        </div>
+
+        <div class="weather-info" id="weatherInfo">
+            <div id="forecastHero" style="display: none; margin-bottom: 30px; text-align: center; animation: fadeIn 0.8s ease-out;">
+                <h2 id="cityName" style="font-size: 38px; margin-bottom: 5px;">--</h2>
+                <div id="heroTemp" style="font-size: 64px; font-weight: 700; margin: 10px 0; background: linear-gradient(to bottom, #ffffff, #94a3b8); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">--°</div>
+                <p id="heroDesc" class="weather-desc" style="margin-bottom: 10px; font-size: 18px;">Detailed Forecast</p>
+                <div style="display: flex; justify-content: center; gap: 20px; font-size: 14px; color: var(--text-secondary);">
+                    <span><i class="ph ph-arrow-up" style="color: var(--accent);"></i> H: <span id="heroMax">--</span>°</span>
+                    <span><i class="ph ph-arrow-down" style="color: #60a5fa;"></i> L: <span id="heroMin">--</span>°</span>
+                </div>
+            </div>
+
+            <div id="forecastContent" style="display: none;">
+                <!-- Hourly Table -->
+                <div class="forecast-section">
+                    <h3 class="section-title">24-Hour Forecast</h3>
+                    <div class="forecast-container" id="hourlyContainer">
+                        <!-- Hourly cards injected here -->
+                    </div>
+                </div>
+
+                <!-- Daily Table -->
+                <div class="forecast-section" style="margin-top: 40px;">
+                    <h3 class="section-title">Next 5 Days</h3>
+                    <div class="daily-container" id="dailyContainer">
+                        <!-- Daily cards injected here -->
+                    </div>
+                </div>
+            </div>
+            
+            <div id="emptyState" style="text-align: center; margin-top: 50px;">
+                <i class="ph ph-cloud-sun" style="font-size: 80px; color: var(--glass-border); margin-bottom: 20px; display: block;"></i>
+                <p style="color: var(--text-secondary); font-size: 16px;">Search for a city to explore the <br> upcoming weather trends</p>
+            </div>
+        </div>
+        </div>
+
+        <nav class="bottom-nav">
+            <a href="index.html">
+                <i class="ph ph-sun"></i>
+                <span>Today</span>
+            </a>
+            <a href="forecast.html" class="active">
+                <i class="ph-fill ph-calendar-blank"></i>
+                <span>Forecast</span>
+            </a>
+            <a href="about.html">
+                <i class="ph ph-info"></i>
+                <span>About</span>
+            </a>
+        </nav>
+    </div>
+
+    <script>
+        const cityInput = document.getElementById("cityInput");
+        
+        window.addEventListener("load", displayRecent);
+
+        cityInput.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                getForecast();
+            }
+        });
+
+        async function getForecast(cityName = null) {
+            const city = cityName || cityInput.value.trim();
+            if (!city) return;
+
+            const apiKey = "c813c9d12102635544f37dc9ee37a186";
+            const url = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=metric&appid=${apiKey}`;
+            
+            const weatherInfo = document.getElementById("weatherInfo");
+            const hourlyContainer = document.getElementById("hourlyContainer");
+            const dailyContainer = document.getElementById("dailyContainer");
+            const emptyState = document.getElementById("emptyState");
+            const forecastContent = document.getElementById("forecastContent");
+            const forecastHero = document.getElementById("forecastHero");
+
+            try {
+                weatherInfo.classList.add("loading");
+                
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.cod !== "200") {
+                    alert(data.message ? data.message : "City not found");
+                    weatherInfo.classList.remove("loading");
+                    return;
+                }
+
+                // Update Hero
+                document.getElementById("cityName").innerText = data.city.name;
+                const currentData = data.list[0];
+                const heroTemp = Math.round(currentData.main.temp);
+                document.getElementById("heroTemp").innerText = heroTemp + "°";
+                document.getElementById("heroDesc").innerText = currentData.weather[0].description;
+                const heroIcon = currentData.weather[0].icon;
+
+                // Clear previous items
+                hourlyContainer.innerHTML = '';
+                dailyContainer.innerHTML = '';
+                
+                // --- HOURLY FORECAST ---
+                const hourlyData = data.list.slice(0, 8);
+                hourlyData.forEach((item, index) => {
+                    const dateObj = new Date(item.dt_txt);
+                    const time = index === 0 ? "Now" : dateObj.toLocaleTimeString("en-US", { hour: 'numeric', hour12: true });
+                    const temp = Math.round(item.main.temp);
+                    const desc = item.weather[0].main;
+                    const iconCode = item.weather[0].icon;
+
+                    const html = `
+                        <div class="forecast-card" style="animation: slideUp 0.5s ease-out ${index * 0.1}s both;">
+                            <h3>${time}</h3>
+                            <img src="https://openweathermap.org/img/wn/${iconCode}@2x.png" alt="Icon" class="forecast-icon">
+                            <div class="forecast-temp">${temp}°</div>
+                            <div class="forecast-desc">${desc}</div>
+                        </div>
+                    `;
+                    hourlyContainer.insertAdjacentHTML('beforeend', html);
+                });
+
+                // --- DAILY FORECAST DATA PROCESSING ---
+                const dailyGroups = {};
+                data.list.forEach(item => {
+                    const dateObj = new Date(item.dt_txt);
+                    const dateStr = dateObj.toLocaleDateString("en-US", { weekday: 'short' });
+                    
+                    if (!dailyGroups[dateStr]) {
+                        dailyGroups[dateStr] = {
+                            min: item.main.temp_min,
+                            max: item.main.temp_max,
+                            icon: item.weather[0].icon,
+                            desc: item.weather[0].description,
+                            dayName: dateStr
+                        };
+                    } else {
+                        dailyGroups[dateStr].min = Math.min(dailyGroups[dateStr].min, item.main.temp_min);
+                        dailyGroups[dateStr].max = Math.max(dailyGroups[dateStr].max, item.main.temp_max);
+                        if (item.dt_txt.includes("12:00:00")) {
+                            dailyGroups[dateStr].icon = item.weather[0].icon;
+                            dailyGroups[dateStr].desc = item.weather[0].description;
+                        }
+                    }
+                });
+
+                const dailyArray = Object.values(dailyGroups).slice(0, 5);
+                const overallMin = Math.min(...dailyArray.map(d => d.min));
+                const overallMax = Math.max(...dailyArray.map(d => d.max));
+                const range = overallMax - overallMin;
+
+                // Update Hero Min/Max based on today's group
+                document.getElementById("heroMin").innerText = Math.round(dailyArray[0].min);
+                document.getElementById("heroMax").innerText = Math.round(dailyArray[0].max);
+
+                dailyArray.forEach((day, index) => {
+                    const barWidth = ((day.max - day.min) / range) * 100;
+                    const barLeft = ((day.min - overallMin) / range) * 100;
+
+                    const html = `
+                        <div class="daily-card" style="animation: fadeIn 0.5s ease-out ${0.4 + index * 0.1}s both;">
+                            <div class="daily-date">${index === 0 ? "Today" : day.dayName}</div>
+                            <div class="daily-icon-group">
+                                <img src="https://openweathermap.org/img/wn/${day.icon}@2x.png" alt="Icon" class="daily-icon">
+                                <span class="daily-desc">${day.desc}</span>
+                            </div>
+                            <div class="daily-temps">
+                                <span class="min">${Math.round(day.min)}°</span>
+                                <div class="temp-bar-container">
+                                    <div class="temp-bar" style="width: ${barWidth}%; left: ${barLeft}%;"></div>
+                                </div>
+                                <span class="max">${Math.round(day.max)}°</span>
+                            </div>
+                        </div>
+                    `;
+                    dailyContainer.insertAdjacentHTML('beforeend', html);
+                });
+
+                emptyState.style.display = "none";
+                forecastHero.style.display = "block";
+                forecastContent.style.display = "block";
+
+                weatherInfo.classList.remove("loading");
+                weatherInfo.classList.add("active");
+
+                // Save to recent
+                saveToRecent(data.city.name, heroTemp, heroIcon);
+
+            } catch (error) {
+                console.error(error);
+                alert("Error fetching forecast data. Please try again.");
+                weatherInfo.classList.remove("loading");
+            }
+        }
+
+        function saveToRecent(name, temp, icon) {
+            let recent = JSON.parse(localStorage.getItem('recent_cities')) || [];
+            recent = recent.filter(c => c.name !== name);
+            recent.unshift({ name, temp, icon });
+            if (recent.length > 5) recent.pop();
+            localStorage.setItem('recent_cities', JSON.stringify(recent));
+            displayRecent();
+        }
+
+        function displayRecent() {
+            const recent = JSON.parse(localStorage.getItem('recent_cities')) || [];
+            const container = document.getElementById("recentSearches");
+            const list = document.getElementById("recentList");
+
+            if (recent.length === 0) {
+                container.style.display = "none";
+                return;
+            }
+
+            container.style.display = "block";
+            list.innerHTML = "";
+
+            recent.forEach(city => {
+                const card = `
+                    <div class="recent-city-card" onclick="getForecast('${city.name}')">
+                        <span class="recent-city-name">${city.name}</span>
+                        <img class="recent-city-icon" src="https://openweathermap.org/img/wn/${city.icon}.png">
+                        <span class="recent-city-temp">${city.temp}°</span>
+                    </div>
+                `;
+                list.insertAdjacentHTML("beforeend", card);
+            });
+        }
+
+        function clearHistory() {
+            localStorage.removeItem('recent_cities');
+            displayRecent();
+        }
+    </script>
+</body>
+</html>
