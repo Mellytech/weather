@@ -31,13 +31,13 @@
         </div>
 
         <div class="weather-info" id="weatherInfo">
-            <div id="forecastHero" style="display: none; margin-bottom: 30px; text-align: center; animation: fadeIn 0.8s ease-out;">
-                <h2 id="cityName" style="font-size: 38px; margin-bottom: 5px;">--</h2>
-                <div id="heroTemp" style="font-size: 64px; font-weight: 700; margin: 10px 0; background: linear-gradient(to bottom, #ffffff, #94a3b8); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">--°</div>
-                <p id="heroDesc" class="weather-desc" style="margin-bottom: 10px; font-size: 18px;">Detailed Forecast</p>
-                <div style="display: flex; justify-content: center; gap: 20px; font-size: 14px; color: var(--text-secondary);">
-                    <span><i class="ph ph-arrow-up" style="color: var(--accent);"></i> H: <span id="heroMax">--</span>°</span>
-                    <span><i class="ph ph-arrow-down" style="color: #60a5fa;"></i> L: <span id="heroMin">--</span>°</span>
+            <div id="forecastHero" class="forecast-hero" style="display: none;">
+                <h2 id="cityName">--</h2>
+                <div id="heroTemp" class="hero-temp">--°</div>
+                <p id="heroDesc" class="weather-desc">Detailed Forecast</p>
+                <div class="hero-high-low">
+                    <span><i class="ph ph-arrow-up"></i> H: <span id="heroMax">--</span>°</span>
+                    <span><i class="ph ph-arrow-down"></i> L: <span id="heroMin">--</span>°</span>
                 </div>
             </div>
 
@@ -51,7 +51,7 @@
                 </div>
 
                 <!-- Daily Table -->
-                <div class="forecast-section" style="margin-top: 40px;">
+                <div class="forecast-section daily-section">
                     <h3 class="section-title">Next 5 Days</h3>
                     <div class="daily-container" id="dailyContainer">
                         <!-- Daily cards injected here -->
@@ -59,9 +59,9 @@
                 </div>
             </div>
             
-            <div id="emptyState" style="text-align: center; margin-top: 50px;">
-                <i class="ph ph-cloud-sun" style="font-size: 80px; color: var(--glass-border); margin-bottom: 20px; display: block;"></i>
-                <p style="color: var(--text-secondary); font-size: 16px;">Search for a city to explore the <br> upcoming weather trends</p>
+            <div id="emptyState" class="empty-state">
+                <i class="ph ph-cloud-sun icon"></i>
+                <p>Search for a city to explore the <br> upcoming weather trends</p>
             </div>
         </div>
         </div>
